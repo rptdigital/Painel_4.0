@@ -1,0 +1,32 @@
+-homepage
+-fazer login
+    -email
+    -username
+    -senha
+    -empresas que ele abriu
+
+-Empresa
+    -Nome
+    -setor
+    -descricao
+    -uf
+    -data de criacao
+    -data de modificacao
+    -projetos
+        -servicos
+        -responsavel
+        -data de deadline
+        -data de aprovacao
+        -data de envio
+        -data de pedido
+        -valor 
+        -linha de servico 
+        -nome do projetos
+        -estagio 
+
+- barra de pesquisa
+    -nome da empresas
+
+- formulario
+    -empresas
+    -projetos

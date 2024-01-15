@@ -1,0 +1,333 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+Projetos Fechados - Grupo Report
+{% endblock %}
+
+{% block content %}
+<style>
+    .column {
+        /* Estilos para as colunas da área de drag and drop */
+        background-color: #1b1b1b; /* Exemplo de cor de fundo */
+        margin: 0 10px;
+        padding: 10px;
+        border-radius: 5px;
+        min-width: 300px;
+        max-width: auto; /* Largura máxima que você deseja para as colunas */
+        display: inline-block; /* Muda de 'block' para 'inline-block' para permitir que as colunas fiquem lado a lado */
+        vertical-align: top; /* Alinha as colunas ao topo */
+    }
+
+    .column h2 {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px; /* Espaço abaixo do título */
+
+    }
+
+    .cards {
+        min-height: 200px; /* ou altura conforme necessário */
+        min-height: 100px; /* Altura mínima para a área dropável */
+        display: flex; /* Permite alinhar os cartões verticalmente */
+        flex-direction: column; /* Alinha os cartões em coluna */
+    }
+
+    .card {
+        background-color: #333; /* Exemplo de cor de fundo para os cartões */
+        color: #fff; /* Cor do texto */
+        margin-bottom: 5px;
+        padding: 10px;
+        border-radius: 3px;
+        cursor: move; /* estilo do cursor para indicar que é arrastável */
+        overflow: hidden; /* Garante que o conteúdo não ultrapasse o card */
+        text-overflow: ellipsis; /* Adiciona reticências se o texto for muito longo */
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* Limita o texto a duas linhas */
+        -webkit-box-orient: vertical;
+        word-wrap: break-word; /* Quebra palavras longas que podem ultrapassar o card */
+
+    }
+
+    .drag-and-drop-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px; /* Espaço entre as colunas */
+        display: inline-flex; /* Muda de 'flex' para 'inline-flex' para alinhar as colunas em uma linha */
+        flex-wrap: nowrap; /* Impede que os itens sejam envolvidos para a próxima linha */
+    }
+
+    .drag-and-drop-wrapper {
+        overflow-x: auto; /* Adiciona rolagem horizontal se o conteúdo exceder a largura da tela */
+        white-space: nowrap; /* Impede que as colunas passem para a próxima linha */
+    }
+
+    .kanban-outer-container {
+        border: 2px dashed #366092;
+        padding: 10px;
+        border-radius: 10px;
+        margin: 20px 0;
+    }
+
+    /* Estilos adicionais para as sub-colunas de Fechamento */
+    .fechamento-colunas {
+        display: flex;
+        gap: 10px;
+    }
+
+    /* Estilos para a barra de rolagem */
+    .drag-and-drop-wrapper::-webkit-scrollbar {
+        height: 12px; /* Altura da barra de rolagem */
+    }
+
+    .drag-and-drop-wrapper::-webkit-scrollbar-track {
+        background: #2c2c2c; /* Cor de fundo da trilha da barra de rolagem, ajuste conforme necessário */
+        border-radius: 10px;
+    }
+
+    .drag-and-drop-wrapper::-webkit-scrollbar-thumb {
+        background-color: #366092; /* Cor da barra de rolagem, ajuste conforme necessário */
+        border-radius: 10px;
+        border: 3px solid #2c2c2c; /* Cor de borda igual à do track para criar o efeito de "margem" */
+    }
+
+    .drag-and-drop-wrapper::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Cor da barra de rolagem ao passar o mouse */
+    }
+
+    .drag-and-drop-container {
+        margin-bottom: 30px; /* Espaço abaixo da área de rolagem para não ficar muito perto do rodapé */
+    }
+
+    .column:not(:last-child) {
+        margin-right: 20px; /* Adiciona espaço à direita de cada coluna exceto a última */
+    }
+
+    .titulo-tabela {
+        text-align: left; /* Alinha o título à esquerda */
+        font-family: 'Helvetica Neue', Arial, sans-serif; /* Fonte elegante e profissional */
+        color: #3d85c6; /* Cor sóbria para um visual mais profissional */
+        margin-bottom: 20px; /* Espaço entre o título e a tabela */
+        font-size: 1.5em; /* Tamanho da fonte adequado */
+        font-weight: 600; /* Semi-negrito para destaque */
+        padding-left: 15px; /* Alinhamento com o início da tabela */
+    }
+
+    .filtro-projetos {
+        margin-bottom: 0; /* Espaço antes da tabela */
+        text-align: left; /* Alinhamento do texto */
+        padding-left: 5px; /* Alinhamento com o início da tabela */
+    }
+
+    .filtro-projetos select {
+        font-family: 'Arial', sans-serif; /* Fonte para combinar com a tabela */
+        padding: 10px; /* Espaçamento interno para conforto visual */
+        border-radius: 4px; /* Bordas arredondadas */
+        border: 2px solid #ffffff; /* Borda para combinar com a tabela */
+        background-color: #303030; /* Cor de fundo para combinar com a tabela */
+        color: #fcfcfc; /* Cor do texto */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Sombra suave */
+        cursor: pointer; /* Estilo do cursor */
+    }
+
+    .filtro-projetos label {
+        color: #366092; /* Cor da etiqueta para combinar com o título da tabela */
+        margin-right: 50px; /* Espaçamento entre a etiqueta e a lista suspensa */
+        font-weight: 600; /* Peso da fonte para a etiqueta */
+    }
+</style>
+
+<script>
+    function allowDrop(event) {
+        event.preventDefault();
+    }
+
+    function drag(event) {
+        event.dataTransfer.setData("text/plain", event.target.id);
+    }
+
+   // Função para lidar com o drop
+    function drop(event) {
+        event.preventDefault();
+        var data = event.dataTransfer.getData("text/plain");
+        var card = document.getElementById(data);
+
+        if (event.target.className === "cards") {
+            event.target.appendChild(card);
+        } else if (event.target.className === "card") {
+            event.target.parentNode.insertBefore(card, event.target);
+        }
+
+        // Determinar o ID da coluna para onde o cartão foi movido
+        var columnId = event.target.closest('.column').id;
+        
+        // Mapear o ID da coluna para o status correspondente
+        var newStatus;
+        switch (columnId) {
+            case "column-1":
+                newStatus = "Não iniciado";
+                break;
+            case "column-2":
+                newStatus = "Em andamento";
+                break;
+            case "column-3":
+                newStatus = "Fechamento em vista";
+                break;
+            case "column-4":
+                newStatus = "Pausado/Cancelado";
+                break;
+            case "column-5":
+                newStatus = "Concluído";
+                break;
+            // Adicione mais casos conforme necessário
+        }
+
+        // Obter o ID numérico do projeto a partir do ID do cartão
+        var projectId = card.id.replace("projeto-", "");
+
+        // Chamar a função para atualizar o status do projeto
+        updateProjectStatus(projectId, newStatus);
+    }
+
+
+    // Adicionar os eventos de drag and drop às colunas
+    document.querySelectorAll('.cards').forEach(cards => {
+        cards.addEventListener('dragover', allowDrop);
+        cards.addEventListener('drop', drop);
+
+        
+    });
+
+    // Em seu arquivo JavaScript
+    function updateProjectStatus(projectId, newStatus) {
+        fetch('/update_project_status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify({ projectId: projectId, newStatus: newStatus })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+
+<div class="py-20 px-4">
+    <div>
+        <h1 class="titulo-tabela">Projetos - Status</h1>
+    </div>
+
+    <div class="filtro-projetos" id="linha_de_servico_filtro">
+        <form method="get" action="{% url 'empresa:projeto_kanban' %}">
+            <select name="linha_servico" onchange="this.form.submit()">
+                <option value="">Selecione uma Linha de Serviço</option>
+                {% for linha in linhas_de_servico %}
+                <option value="{{ linha.id }}" {% if request.GET.linha_servico == linha.id|stringformat:"s" %} selected {% endif %}>
+                    {{ linha.nome }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+    
+    <div class="kanban-outer-container">
+        <div class="drag-and-drop-wrapper">
+            <div id="drag-and-drop-area" class="drag-and-drop-container">
+                <!-- Coluna de empresas com projetos fechados -->
+                <div class="column" id="column-1">
+                    <h2>Não Iniciado</h2>
+                    <div class="cards" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <!-- Seleciona os projetos q tem o status não iniciado para esse card -->
+                        {% for projeto in nao_iniciado_projetos %}
+                        <div class="card" draggable="true" ondragstart="drag(event)" id="projeto-{{ projeto.id }}">
+                            <p>{{ projeto.proposta.empresa.nome }} - {{ projeto.proposta.nome }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Coluna de Qualificação -->
+                <div class="column qualificacao" id="column-2">
+                    <h2>Em andamento</h2>
+                    <div class="cards" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <!-- Seleciona os projetos q tem o status em andamento para esse card -->
+                    {% for projeto in em_andamento_projetos %}
+                        <div class="card" draggable="true" ondragstart="drag(event)" id="projeto-{{ projeto.id }}">
+                            <p>{{ projeto.proposta.empresa.nome }} - {{ projeto.proposta.nome }}</p>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Coluna de Desenvolvimento -->
+                <div class="column desenvolvimento" id="column-3">
+                    <h2>Fechamento em vista</h2>
+                    <div class="cards" ondrop="drop(event)" ondragover="allowDrop(event)">
+                   <!-- Seleciona os projetos q tem o status em andamento para esse card -->
+                    {% for projeto in fechamento_em_vista_projetos %}
+                        <div class="card" draggable="true" ondragstart="drag(event)" id="projeto-{{ projeto.id }}">
+                            <p>{{ projeto.proposta.empresa.nome }} - {{ projeto.proposta.nome }}</p>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Coluna de Apresentação -->
+                <div class="column apresentacao" id="column-4">
+                    <h2>Pausado/Cancelado</h2>
+                    <div class="cards" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    {% for projeto in pausado_e_cancelados_projetos %}
+                        <div class="card" draggable="true" ondragstart="drag(event)" id="projeto-{{ projeto.id }}">
+                            <p>{{ projeto.proposta.empresa.nome }} - {{ projeto.proposta.nome }}</p>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Coluna de Apresentação -->
+                <div class="column apresentacao" id="column-5">
+                    <h2>Concluído</h2>
+                    <div class="cards" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    {% for projeto in concluidos_vista_projetos %}
+                        <div class="card" draggable="true" ondragstart="drag(event)" id="projeto-{{ projeto.id }}">
+                            <p>{{ projeto.proposta.empresa.nome }} - {{ projeto.proposta.nome }}</p>
+                        </div>
+                    {% endfor %}                    
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class=" bg-[#366092] px-1 py-2 ">
+    <ul class=" flex justify-between items-center">
+        <li>&copy; 2023</li>
+        <li>Feito com Python (Django)</li>
+        <li>Grupo Report</li>
+    </ul>
+</footer>
+{% endblock %}

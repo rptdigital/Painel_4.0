@@ -1,0 +1,709 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}
+HomeEmpresas Grupo Report
+{% endblock %}
+
+
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<style>
+    .perfil-empresa {
+        text-align: center; /* Centraliza todo o conteúdo */
+        padding-top: 100px; /* Aumenta o padding superior */
+        padding-bottom: 20px;
+        background-color: #1b1b1b; /* Cor de fundo cinza */
+        color: #ffffff; /* Cor do texto em um tom de cinza escuro para contraste */
+    }
+
+    .perfil-empresa img {
+        border-radius: 50%; /* Torna a imagem circular */
+        width: 150px; /* Define um tamanho padrão para o logo */
+        height: 150px; /* Mantém a proporção da imagem */
+        object-fit: cover; /* Garante que a imagem preencha o espaço */
+        border: 3px solid #333; /* Adiciona uma borda ao redor da imagem */
+        display: block; /* Faz a imagem se comportar como um bloco */
+        margin: 0 auto; /* Centraliza a imagem na página */
+        margin-bottom: 20px; /* Espaço entre o logo e o texto */
+    }
+
+    .perfil-empresa h1 {
+        margin: 0;
+        font-size: 24px; /* Tamanho da fonte para o nome da empresa */
+        margin-bottom: 10px; /* Espaço entre o nome e a descrição */
+    }
+
+    .perfil-empresa p {
+        font-size: 16px; /* Tamanho da fonte para a descrição */
+        max-width: 600px; /* Largura máxima da descrição */
+        margin: 0 auto; /* Centraliza a descrição */
+        text-align: center; /* Alinha o texto da descrição ao centro */
+        margin-bottom: 10px; /* Aumentar a margem inferior para mais espaço após a descrição */
+
+    }
+
+    /* Estilos para a tabela de propotas, adaptados do seu código anterior */
+    .tabela-propostas {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 25px 0;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        font-family: 'Arial', sans-serif;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid #ffffff; /* Contorno branco */
+        margin-left: auto; /* Centraliza a tabela horizontalmente */
+        margin-right: auto; /* Centraliza a tabela horizontalmente */
+        margin-top: 30px; /* Espaçamento superior (entre a descrição e a tabela) */
+        width: 90%; /* Ajuste a largura conforme necessário */
+    }
+
+    .tabela-propostas thead {
+        box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+    }
+
+    .tabela-propostas thead tr {
+        background-color: #366092;
+        color: #ffffff;
+        text-align: left;
+    }
+
+    .tabela-propostas th, .tabela-propostas td {
+        padding: 12px 15px;
+        text-align: left; /* Alinha o texto à esquerda */
+    }
+
+    .tabela-propostas tbody tr {
+        background-color: #303030; /* Fundo preto para as linhas da tabela */
+        color: #fcfcfc; /* Texto branco para as linhas da tabela */
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .tabela-propostas tbody tr:hover {
+        background-color: #3d3d3d; /* Fundo mais claro ao passar o mouse */
+        color: #ffffff;
+    }
+
+    /* Pode remover ou ajustar se a interação não for necessária para propotas */
+    .descricao-curta {
+        cursor: pointer;
+    }
+
+    .tabela-container {
+        overflow-x: auto; /* Adiciona rolagem horizontal se necessário */
+        margin-top: 5px; /* Espaçamento superior */
+        margin-left: auto; /* Centraliza horizontalmente */
+        margin-right: auto; /* Centraliza horizontalmente */
+        width: 90%; /* Ajuste a largura conforme necessário */
+        margin-top: 0; /* Reduz a margem superior para aproximar a tabela do título */
+
+    }
+
+    .linha-propostas {
+    cursor: pointer; /* Muda o cursor para indicar interatividade */
+    transition: background-color 0.3s ease; /* Transição suave para o fundo */
+    }   
+
+    .linha-propostas.expandida td {
+    white-space: normal; /* Permite que o texto flua normalmente */
+    }
+
+    .tabela-propostas th, .tabela-propostas td.nome-propostas {
+        white-space: nowrap; /* Mantém o texto em uma única linha */
+        overflow: hidden; /* Esconde o overflow de texto */
+        text-overflow: ellipsis; /* Adiciona reticências se o texto for muito longo */
+    }
+
+    /* Estilos para as células truncadas */
+    .tabela-propostas td:not(.nome-propostas) {
+        cursor: pointer; /* Muda o cursor para indicar interatividade */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 150px; /* Define uma largura máxima */
+    }
+
+    /* Estilos para expandir a célula ao clicar */
+    .tabela-propostas .expandida td {
+        white-space: normal;
+    }
+
+    /* Estilos para personalizar a barra de rolagem horizontal */
+    .tabela-container::-webkit-scrollbar {
+        height: 12px; /* Altura da barra de rolagem */
+    }
+
+    .tabela-container::-webkit-scrollbar-track {
+        background: #2c2c2c; /* Cor de fundo da trilha da barra de rolagem */
+        border-radius: 10px; /* Bordas arredondadas para a trilha */
+    }
+
+    .tabela-container::-webkit-scrollbar-thumb {
+        background-color: #366092; /* Cor da barra de rolagem, ajuste conforme necessário */
+        border-radius: 10px;
+        border: 3px solid #2c2c2c; /* Cor de borda igual à do track para criar o efeito de "margem" */
+    }
+
+    .tabela-container::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Cor da barra de rolagem ao passar o mouse */
+    }
+
+    .titulo-tabela {
+        text-align: center; /* Alinha o título no centro */
+        font-family: 'Helvetica Neue', Arial, sans-serif; /* Fonte elegante e profissional */
+        color: #3d85c6; /* Cor sóbria para um visual mais profissional */
+        margin-bottom: 20px; /* Espaço entre o título e a tabela */
+        font-size: 1.5em; /* Tamanho da fonte adequado */
+        font-weight: 600; /* Semi-negrito para destaque */
+        padding-left: 15px; /* Alinhamento com o início da tabela */
+    }
+
+    .titulo-tabela-container {
+        width: 90%; /* A mesma largura do .tabela-container */
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        margin-bottom: 20px; /* Espaço entre o título e a tabela */
+        margin-top: 30px; /* Adicionar margem superior para mais espaço acima do título da tabela */
+
+    }
+    
+    .filtros {
+        display: flex; /* Ativa o flexbox */
+        gap: 2px; /* Diminui o espaçamento entre os itens */
+        margin-bottom: 0; /* Espaço antes da tabela */
+        padding-left: 60px; /* Alinhamento com o início da tabela */
+        align-items: flex-start; /* Alinha os itens à esquerda *//
+    }
+
+    .filtro-proposta {
+        margin-bottom: 0; /* Espaço antes da tabela */
+        text-align: left; /* Alinhamento do texto */
+        padding-left: 5px; /* Alinhamento com o início da tabela */
+    }
+
+    .filtro-proposta select {
+        font-family: 'Arial', sans-serif; /* Fonte para combinar com a tabela */
+        padding: 10px; /* Espaçamento interno para conforto visual */
+        border-radius: 4px; /* Bordas arredondadas */
+        border: 2px solid #ffffff; /* Borda para combinar com a tabela */
+        background-color: #303030; /* Cor de fundo para combinar com a tabela */
+        color: #fcfcfc; /* Cor do texto */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Sombra suave */
+        cursor: pointer; /* Estilo do cursor */
+    }
+
+    .filtro-proposta label {
+        color: #366092; /* Cor da etiqueta para combinar com o título da tabela */
+        margin-right: 50px; /* Espaçamento entre a etiqueta e a lista suspensa */
+        font-weight: 600; /* Peso da fonte para a etiqueta */
+    }
+
+    /* Formatação da coluna linha do nome do projeto */
+     .tabela-propostas td.nome {
+        min-width: 300px; /* Ajuste este valor conforme necessário */
+        white-space: normal;
+        word-break: break-word;
+        overflow: visible;
+    }
+
+    
+    /* Estilos da seção de análises */
+    .analise-card-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        margin: 30px auto; /* As mesmas margens que a tabela */
+        background-color: #366092; /* Azul da tabela */
+        border-radius: 10px; /* Arredondamento dos cantos */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra como a da tabela */
+        max-width: 90%; /* A mesma largura máxima que a tabela */
+    }
+
+    .analise-card {
+        flex: 1; /* Cada cartão ocupa um espaço igual dentro do contêiner */
+        margin: 0 10px; /* Adiciona uma pequena margem entre os cartões */
+        padding: 10px; /* Espaçamento interno do cartão */
+        text-align: center; /* Alinhamento central do texto */
+        font-family: 'Nunito', sans-serif; /* Fonte Nunito */
+    }
+
+    .analise-card h3 {
+        font-size: 1em; /* Diminui o tamanho do título */
+        font-weight: 700; /* Torna o título mais negrito */
+        margin-bottom: 5px; /* Espaço abaixo do título */
+        color: #f0f0f0; /* Cor levemente diferente para destaque */
+    }
+
+    .analise-card p, .analise-card span {
+        font-size: 1.4em; /* Tamanho do texto */
+        font-weight: 700; /* Torna o texto em negrito */
+        margin: 5px 0;
+        color: #d0d0d0; /* Cor suave para o texto */
+        line-height: 1.4; /* Espaçamento entre linhas */
+    }
+
+    /* Media queries para responsividade */
+    @media (max-width: 768px) {
+        .analise-card-container {
+            flex-direction: column;
+        }
+
+        .analise-card {
+            margin-bottom: 20px; /* Espaço entre os cartões quando empilhados */
+            width: auto; /* Cartões se ajustam ao novo layout */
+        }
+    }
+
+    @media (max-width: 480px) {
+        .analise-card-container {
+            padding: 10px;
+        }
+
+        .analise-card {
+            margin-bottom: 10px; /* Menos espaço entre os cartões para evitar a sobreposição */
+        }
+    }
+
+    .grafico-jornada-cliente {
+        max-width: 1000px;
+        height: auto;
+        margin: 20px auto;
+    }
+
+    /* Estilos para o título da seção de filtro */
+    .titulo-filtro-jornada {
+        text-align: center;
+        margin-top: 40px; /* Espaço após a seção de análises */
+        color: #ffffff;
+    }
+
+    .titulo-filtro-jornada h2 {
+        font-size: 1.8em;
+        color: #3d85c6;
+    }
+
+    /* Estilos para os filtros de data */
+    .filtros-data {
+        display: flex;
+        justify-content: center;
+        gap: 20px; /* Espaçamento entre os filtros de data */
+        margin-top: 20px; /* Espaço após o título */
+        padding-bottom: 20px; /* Espaço antes do gráfico */
+    }
+
+    .filtro-data-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .filtros-data label {
+        color: #ffffff;
+        margin-bottom: 5px;
+    }
+
+    .filtros-data input[type="date"] {
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #dddddd;
+        background-color: #303030;
+        color: #fcfcfc;
+        cursor: pointer;
+    }
+
+        /* Estilos para o container dos filtros de data */
+    .filtros-data-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px; /* Ajuste conforme necessário */
+    }
+
+    /* Estilos para o ícone de limpar */
+    #botaoLimpar {
+        color: #3d85c6;
+        cursor: pointer;
+        font-size: 1.5em; /* Ajuste o tamanho conforme necessário */
+        margin-left: 10px; /* Espaço entre o filtro e o ícone */
+    }
+
+    #botaoLimpar:hover {
+        color: #2b6da0;
+    }
+
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Código para alternar a classe 'expandida' e mostrar/ocultar informações adicionais
+    document.querySelectorAll('.linha-propostas').forEach(function(linha) {
+        linha.addEventListener('click', function() {
+            this.classList.toggle('expandida');
+            this.querySelectorAll('td').forEach(function(td) {
+                if (td.title) {
+                    let temp = td.innerText;
+                    td.innerText = td.title;
+                    td.title = temp;
+                }
+            });
+        });
+    });
+
+    // Mapeamento dos estágios para valores numéricos
+    const estagiosMap = {
+        'Prospecção' : 0,
+        'Qualificação': 1,
+        'Pendente': 1.5,
+        'Desenvolvimento': 2,
+        'Apresentação': 2.5 ,
+        'Enviada': 4,
+        'Média Probabilidade': 6,
+        'Alta Probabilidade': 8,
+        'Aprovado': 10,
+        'Declinada': 0,
+        'Cancelada': 0,
+        'Recusamos': 0,
+    };
+
+    // Parse dos dados para o gráfico
+    var propostasData = JSON.parse('{{ propostas_grafico | safe }}');
+
+    // Ordena os dados pela data de pedido de forma crescente
+    propostasData.sort(function(a, b) {
+        return new Date(a.data_de_pedido) - new Date(b.data_de_pedido);
+    });
+
+
+    var data = propostasData.map(function(proposta) {
+        return {
+            x: moment(proposta.data_de_pedido).format('YYYY-MM-DD'), // Usa a biblioteca moment.js para garantir o formato correto
+            y: estagiosMap[proposta.estagio],
+            r: 5, // O raio pode ser ajustado conforme a necessidade
+            nome: proposta.nome,
+            responsavel: proposta.responsavel,
+            dataAprovacao: proposta.data_de_aprovacao ? moment(proposta.data_de_aprovacao).format('DD/MM/YYYY') : 'N/A'
+        };
+    });
+
+    console.log(data);  // Adicione esta linha para depurar os dados
+    // Configuração do gráfico
+    var ctx = document.getElementById('jornadaClienteGrafico').getContext('2d');
+    var myScatterChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Propostas',
+                data: data,
+                backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                borderColor: 'rgba(0, 123, 255, 1)',
+                showLine: true, // Habilita a linha
+                lineTension: 0, // Linha reta, sem curvas
+                fill: false, // Não preenche a área abaixo da linha
+                borderWidth: 1, // Define a espessura da linha
+                borderDash: [5, 5], // Define o padrão da linha pontilhada
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        parser: 'YYYY-MM-DD',
+                        tooltipFormat: 'MM/YYYY', // Formato alterado para mês/ano
+                        unit: 'month'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Data de Pedido'
+                    },
+                    grid: {
+                    color: 'rgba(255, 255, 255, 0.1)', // Cor das linhas de grade
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Estágio da Proposta'
+                    },
+                    grid: {
+                    color: 'rgba(255, 255, 255, 0.1)', // Cor das linhas de grade
+                    }
+                }
+            },
+            plugins: { 
+                legend: {
+                    labels: {
+                        color: 'white', // Cor do texto da legenda
+                        font: {
+                            size: 14, // Tamanho da fonte da legenda
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#333', // Cor de fundo das tooltips
+                    titleFont: {
+                        size: 16, // Tamanho da fonte do título da tooltip
+                        weight: 'bold', // Peso da fonte do título
+                    },
+                    bodyFont: {
+                        size: 14, // Tamanho da fonte do corpo da tooltip
+                    },
+                    cornerRadius: 6, // Raio da borda da tooltip
+                    displayColors: false, // Não exibir quadrado de cores na tooltip
+                    callbacks: {
+                        beforeTitle: function(context) {
+                            // Ordena as tooltips por data
+                            context.sort((a, b) => a.parsed.x - b.parsed.x);
+                        },
+                        label: function(context) {
+                            var elemento = context.raw;
+                            var label = [
+                                'nome da proposta: ' + elemento.nome,
+                                'responsável: ' + elemento.responsavel,
+                                'estágio: ' + Object.keys(estagiosMap).find(key => estagiosMap[key] === elemento.y),
+                                'data de resposta: ' + elemento.dataAprovacao
+                            ];
+                            // Verifica se há mais de uma proposta no mesmo dia
+                            var indice = context.dataIndex;
+                            var dataset = context.dataset.data;
+                            if (indice < dataset.length - 1 && dataset[indice].x === dataset[indice + 1].x) {
+                                label.push('               '); // Adiciona um separador
+                            }
+                            return label;
+                        },
+                        afterLabel: function(context) {
+                            var indice = context.dataIndex;
+                            var dataset = context.dataset.data;
+                            // Verifica se o próximo elemento compartilha a mesma data
+                            if (indice < dataset.length - 1 && dataset[indice].x === dataset[indice + 1].x) {
+                                return ''; // Adiciona espaço extra antes do próximo item
+                            }
+                        }
+                    }
+                }
+            },
+            animation: {
+                duration: 1500,
+                easing: 'easeOutElastic',
+                from: Number.MIN_VALUE,
+                delay: function(context) {
+                    var delay = 0;
+                    if (context.type === 'data' && context.mode === 'default' && !context.dropped) {
+                        delay = context.dataIndex * 30 + context.datasetIndex * 100;
+                    }
+                    return delay;
+                }
+            },
+        }
+    });
+
+    window.atualizarGrafico = function() {
+        var dataInicio = document.getElementById('dataInicio').value;
+        var dataFim = document.getElementById('dataFim').value;
+
+        var dataFiltrada = data.filter(function(item) {
+            var data = new Date(item.x);
+            return (!dataInicio || data >= new Date(dataInicio)) && (!dataFim || data <= new Date(dataFim));
+        });
+
+        myScatterChart.data.datasets[0].data = dataFiltrada;
+        myScatterChart.update();
+    };
+    // Debug dos dados
+    console.log(propostasData);
+});
+
+
+   // Função que aplica todos os filtros
+    function aplicarFiltros() {
+        var propostaId = document.getElementById('propostaSelect').value;
+        var responsavelId = document.getElementById('responsavelSelect').value;
+
+        var linhas = document.querySelectorAll('.tabela-propostas tbody tr');
+        linhas.forEach(function(linha) {
+            var celulaProposta = linha.getAttribute('data-proposta-id');
+            var celulaResponsavel = linha.getAttribute('data-responsavel-id');
+
+            var filtroProposta = !propostaId || celulaProposta === propostaId;
+            var filtroResponsavel = !responsavelId || celulaResponsavel === responsavelId;
+
+            linha.style.display = filtroProposta && filtroResponsavel ? '' : 'none';
+        });
+    }
+
+    function limparFiltros() {
+        document.getElementById('dataInicio').value = '';
+        document.getElementById('dataFim').value = '';
+        atualizarGrafico(); // Chame a função que atualiza o gráfico
+    }
+        
+</script>
+
+<div class="perfil-empresa">
+    <img src="{{ object.logo.url }}" alt="{{ object.nome }}">
+    <h1>{{ object.nome }}</h1>
+    <p>{{ object.descricao }}</p>
+    
+    <!-- Seção de Análises -->
+    <div class="analise-card-container">
+        <!-- Card de Análise 1 -->
+        <div class="analise-card">
+            <h3>Projetos Fechados</h3>
+            <p><span>{{ total_projetos_fechados }}</span></p>
+        </div>
+
+        <!-- Card de Análise 2 -->
+        <div class="analise-card">
+            <h3>Total Gasto</h3>
+            <p>R$ <span>{{ total_gasto | floatformat:2 }}</span></p>
+        </div>
+
+        <!-- Card de Análise 3 -->
+        <div class="analise-card">
+            <h3>Último Projeto</h3>
+            {% if ultimo_projeto_fechado %}
+                <p>{{ ultimo_projeto_fechado.nome }}</p>
+                <p>{{ ultimo_projeto_fechado.data_de_aprovacao|date:"d/m/Y" }}</p>
+            {% else %}
+                <p>Nenhum recente</p>
+            {% endif %}
+        </div>
+    </div>
+
+
+    <!-- Título da seção de filtro -->
+    <div class="titulo-filtro-jornada">
+        <h2>Jornada do Cliente</h2>
+    </div>
+
+    <!-- Seção de filtros de data -->
+    <div class="filtros-data">
+        <div class="filtro-data-item">
+            <label for="dataInicio">Data de Início:</label>
+            <input type="date" id="dataInicio" onchange="atualizarGrafico()">
+        </div>
+        <div class="filtro-data-item">
+            <label for="dataFim">Data de Fim:</label>
+            <input type="date" id="dataFim" onchange="atualizarGrafico()">
+        </div>
+    </div>
+    <div>
+    <!-- Ícone de limpar -->
+    <i class="fas fa-times-circle" id="botaoLimpar" onclick="limparFiltros()"></i>
+    </div>
+
+
+
+    <div class="grafico-jornada-cliente">
+        <canvas id="jornadaClienteGrafico"></canvas>
+    </div>
+
+    <!-- Seção para listar propotas -->
+        <!-- Container para o título da tabela -->
+        <div class="titulo-tabela-container">
+            <h1 class="titulo-tabela">Tabela | Propostas</h1>
+        </div>
+    
+        <div class="filtros">
+            <!-- Gerando a lista suspensa -->
+            <div class="filtro-proposta">
+                <label for="propostaSelect">Filtros:</label>
+                <select id="propostaSelect" onchange="aplicarFiltros()">
+                    <option value="">Todas as Propostas</option>
+                    {% for proposta in propostas %}
+                        <option value="{{ proposta.id }}">{{ proposta.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+    
+            <!-- Lista Suspensa para Serviços -->
+            <div class="filtro-proposta">
+                <label for="responsavelSelect"></label>
+                <select id="responsavelSelect" onchange="aplicarFiltros()">
+                    <option value="">Todos os Responsáveis</option>
+                    {% for responsavel in responsaveis  %}
+                        <option value="{{ responsavel.id }}">{{ responsavel.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    
+        <!-- Adicione a tabela de propotas aqui -->
+        <div class="tabela-container">
+            {% if propostas %}
+                <table class="tabela-propostas">
+                    <thead>
+                        <tr>
+                            <th>nome do proposta</th>
+                            <th>responsável</th>
+                            <th>serviço</th>
+                            <th>linha de serviço</th>                            
+                            <th>status</th>
+                            <th>data de deadline</th>
+                            <th>data de pedido</th>
+                            <th>data de envio</th>
+                            <th>data de aprovação</th>
+                            <th>valor total</th>                            
+                            <!-- Adicionar mais cabeçalhos se necessário -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for proposta in propostas %}
+                            <tr class="linha-propostas" 
+                                data-proposta-id="{{ proposta.id }}" 
+                                data-responsavel-id="{{ proposta.responsavel.id }}">
+                                <td class="nome">{{ proposta.nome }}</td> <!-- Nome do proposta mostrado na íntegra -->
+                                <td data-trunc="{{ proposta.responsavel |truncatechars:30 }}">{{ proposta.responsavel }}</td>
+                                <td>
+                                    {% for comb_servico in proposta.modulos.all %}
+                                        {{ comb_servico.modulo.servico.nome }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+
+                                <td>
+                                    {% for comb_servico in proposta.modulos.all %}
+                                        {{ comb_servico.modulo.servico.linha_de_servico.nome }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                                
+                                <td data-trunc="{{ proposta.estagio |truncatechars:30 }}">{{ proposta.estagio.nome }}</td>
+                                <td data-trunc="{{ proposta.deadline|date:'d/m/Y'|truncatechars:30 }}">{{ proposta.deadline|date:"d/m/Y" }}</td>
+                                <td data-trunc="{{ proposta.data_de_pedido|date:'d/m/Y'|truncatechars:30 }}">{{ proposta.data_de_pedido|date:"d/m/Y" }}</td>
+                                <td data-trunc="{{ proposta.data_de_envio|date:'d/m/Y'|truncatechars:30 }}">{{ proposta.data_de_envio|date:"d/m/Y" }}</td>
+                                <td data-trunc="{{ proposta.data_de_aprovacao|date:'d/m/Y'|truncatechars:30 }}">{{ proposta.data_de_aprovacao|date:"d/m/Y" }}</td>
+                                <td>R$ {{ proposta.valor|floatformat:2 }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>Nenhuma proposta encontrada para esta empresa.</p>
+            {% endif %}
+        </div>
+
+</div>
+
+
+<footer class=" bg-[#366092] px-1 py-2 ">
+    <ul class=" flex justify-between items-center">
+        
+        <li>&copy; 2023</li>
+        <li> Feito com Python (Django)</li>
+        <li>grupo report</li>
+    </ul>
+</footer>
+{% endblock %}

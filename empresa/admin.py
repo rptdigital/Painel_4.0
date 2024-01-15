@@ -1,0 +1,21 @@
+from django.contrib import admin
+from .models import Empresa, Proposta, Comb_Servico, Servico, Linha_de_servico, Contato, Nivel_hierarquico, Area, Cidade, Estado, Pais, Responsavel, Setor, Endereco,Modulo,Estagio,Projeto,StatusProjeto
+
+admin.site.register(Empresa)
+admin.site.register(Proposta)
+admin.site.register(Comb_Servico)
+admin.site.register(Servico)
+admin.site.register(Linha_de_servico)
+admin.site.register(Contato)
+admin.site.register(Nivel_hierarquico)
+admin.site.register(Area)
+admin.site.register(Cidade)
+admin.site.register(Estado)
+admin.site.register(Pais)
+admin.site.register(Responsavel)
+admin.site.register(Setor)
+admin.site.register(Endereco)
+admin.site.register(Modulo)
+admin.site.register(Estagio)
+admin.site.register(Projeto)
+admin.site.register(StatusProjeto)

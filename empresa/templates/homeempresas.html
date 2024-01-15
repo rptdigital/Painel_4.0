@@ -1,0 +1,197 @@
+
+{% extends 'base.html' %}
+
+
+{% block titulo %}
+Homeempresas Grupo Report
+{% endblock %}
+
+{% block content %}
+<style>
+
+
+    .container-tabela {
+        background-color: #1b1b1b;
+    }
+    .tabela-container {
+        margin-top: 50px; /* Ajusta apenas a posição da tabela */
+        overflow-x: auto; /* Adiciona rolagem horizontal se necessário */
+    }
+
+    .tabela-empresas {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        font-family: 'Arial', sans-serif;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid #ffffff; /* Contorno branco */
+    }
+
+    .tabela-empresas thead {
+        box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+    }
+
+    .tabela-empresas thead tr {
+        background-color: #366092;
+        color: #ffffff;
+        text-align: left;
+    }
+
+    .tabela-empresas th, .tabela-empresas td {
+        padding: 12px 15px;
+    }
+
+    .tabela-empresas tbody tr {
+        background-color: #303030; /* Fundo preto para as linhas da tabela */
+        color: #fcfcfc; /* Texto branco para as linhas da tabela */
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .tabela-empresas tbody tr:hover {
+        background-color: #3d3d3d; /* Fundo branco ao passar o mouse */
+        color: #ffffff; /* Cor da fonte preta ao passar o mouse */
+    }
+
+    .tabela-empresas a {
+        color: #fdfdfd; /* Cor branca dos links por padrão */
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .tabela-empresas a:hover {
+        color: #366092; /* Cor de hover para os links */
+        text-decoration: underline;
+    }
+
+    .descricao-curta {
+        cursor: pointer; /* Adiciona o estilo de cursor para indicar interatividade */
+        min-width: 300px; /* Ajuste este valor conforme necessário */
+        white-space: normal;
+        word-break: break-word;
+        overflow: visible;
+    }
+
+    .titulo-tabela {
+        text-align: left; /* Alinha o título à esquerda */
+        font-family: 'Helvetica Neue', Arial, sans-serif; /* Fonte elegante e profissional */
+        color: #3d85c6; /* Cor sóbria para um visual mais profissional */
+        margin-bottom: 20px; /* Espaço entre o título e a tabela */
+        font-size: 1.5em; /* Tamanho da fonte adequado */
+        font-weight: 600; /* Semi-negrito para destaque */
+        padding-left: 15px; /* Alinhamento com o início da tabela */
+    }
+
+    /* Estilos para personalizar a barra de rolagem horizontal */
+    .tabela-container::-webkit-scrollbar {
+        height: 12px; /* Altura da barra de rolagem */
+    }
+
+    .tabela-container::-webkit-scrollbar-track {
+        background: #2c2c2c; /* Cor de fundo da trilha da barra de rolagem */
+        border-radius: 10px; /* Bordas arredondadas para a trilha */
+    }
+
+    .tabela-container::-webkit-scrollbar-thumb {
+        background-color: #366092; /* Cor da barra de rolagem, ajuste conforme necessário */
+        border-radius: 10px;
+        border: 3px solid #2c2c2c; /* Cor de borda igual à do track para criar o efeito de "margem" */
+    }
+
+    .tabela-container::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Cor da barra de rolagem ao passar o mouse */
+    }
+
+    .tabela-empresas td.nome {
+        min-width: 200px; /* Ajuste este valor conforme necessário */
+        white-space: normal;
+        word-break: break-word;
+        overflow: visible;
+    }
+
+</style>
+
+<script>
+    function toggleDescription(descCell) {
+        const fullDesc = descCell.getAttribute('data-full-desc');
+        const isTruncated = descCell.getAttribute('data-truncated') === 'true';
+
+        if (isTruncated) {
+            descCell.innerText = fullDesc;
+            descCell.setAttribute('data-truncated', 'false');
+        } else {
+            descCell.innerText = fullDesc.substring(0, 20) + '...';
+            descCell.setAttribute('data-truncated', 'true');
+        }
+    }
+
+    function handleRowClick(event, row) {
+    // Verifica se o clique foi em um hiperlink
+    if (event.target.tagName === 'A') {
+        return; // Sai da função sem fazer nada
+    }
+
+    // Verifica se o clique não foi no primeiro elemento (nome)
+    if (event.target.cellIndex !== 0) {
+        // Encontra a célula de descrição na linha clicada
+        const descCell = row.querySelector('.descricao-curta');
+        if (descCell) {
+            toggleDescription(descCell);
+        }
+    }
+}
+
+</script>
+
+
+<div class="py-20 px-4 container-tabela">
+    <h1 class="titulo-tabela">Tabela | empresas</h1>
+    
+    <!-- Tabela de empresas -->
+    <div class="tabela-container">
+        <table class="tabela-empresas">
+            <thead>
+                <tr>
+                    <th>nome</th>
+                    <th>descrição</th>
+                    <th>setor</th>
+                    <th>responsável</th>
+                    <th>cidade</th>
+                    <th>uf</th>
+                    <th>país</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for empresa in object_list %}
+                <tr onclick="handleRowClick(event, this)">
+                    <td class="nome">
+                        <a href="{% url 'empresa:perfilempresa' empresa.id %}">{{ empresa.nome }}</a>
+                    </td>
+                    <td class="descricao-curta" 
+                        data-full-desc="{{ empresa.descricao }}" 
+                        data-truncated="true">
+                        {{ empresa.descricao|truncatechars:30 }}
+                    </td>
+                    <td>{{ empresa.setor }}</td>
+                    <td>{{ empresa.responsavel }}</td>
+                    <td>{{ empresa.cidade }}</td>
+                    <td>{{ empresa.cidade.estado.uf }}</td>
+                    <td>{{ empresa.cidade.estado.pais }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<footer class=" px-1 py-2 bg-[#366092] ">
+    <ul class="flex justify-between items-center">
+        
+        <li>&copy; 2023</li>
+        <li> Feito com Python (Django)</li>
+        <li>grupo report</li>
+    </ul>
+</footer>
+{% endblock %}

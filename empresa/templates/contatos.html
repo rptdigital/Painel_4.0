@@ -1,0 +1,366 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}
+HomeEmpresas Grupo Report
+{% endblock %}
+
+{% block content %}
+<style>
+
+    .container-tabela {
+        background-color: #1b1b1b;
+    }
+    .tabela-container {
+        margin-top: 50px; /* Ajusta apenas a posição da tabela */
+    }
+
+    /* Estilos para a tabela de propotas, adaptados do seu código anterior */
+    .tabela-contatos {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 25px 0;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        font-family: 'Arial', sans-serif;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid #ffffff; /* Contorno branco */
+        margin-left: 10px; /* Reduz a margem esquerda */
+        margin-right: auto; /* Centraliza a tabela horizontalmente */
+        margin-top: 20px; /* Espaçamento superior (entre a descrição e a tabela) */
+        width: 95%; /* Ajuste a largura conforme necessário */
+    }
+
+    .tabela-contatos thead {
+        box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+    }
+
+    .tabela-contatos thead tr {
+        background-color: #366092;
+        color: #ffffff;
+        text-align: left;
+    }
+
+    .tabela-contatos th, .tabela-contatos td {
+        padding: 12px 15px;
+        text-align: left; /* Alinha o texto à esquerda */
+    }
+
+    .tabela-contatos tbody tr {
+        background-color: #303030; /* Fundo preto para as linhas da tabela */
+        color: #fcfcfc; /* Texto branco para as linhas da tabela */
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .tabela-contatos tbody tr:hover {
+        background-color: #3d3d3d; /* Fundo mais claro ao passar o mouse */
+        color: #ffffff;
+    }
+
+    /* Pode remover ou ajustar se a interação não for necessária para propotas */
+    .descricao-curta {
+        cursor: pointer;
+    }
+
+    .tabela-container {
+        overflow-x: auto; /* Adiciona rolagem horizontal se necessário */
+        margin-top: 5px; /* Espaçamento superior */
+        margin-left: 10px; /* Reduz a margem esquerda */
+        margin-right: 10px; /* Reduz a margem direita */
+        width: 97%; /* Ajuste a largura conforme necessário */
+        margin-top: 0; /* Reduz a margem superior para aproximar a tabela do título */
+
+    }
+
+    .linha-contatos {
+    cursor: pointer; /* Muda o cursor para indicar interatividade */
+    transition: background-color 0.3s ease; /* Transição suave para o fundo */
+    }   
+
+    .linha-contatos.expandida td {
+    white-space: normal; /* Permite que o texto flua normalmente */
+    }
+
+    .tabela-contatos th, .tabela-contatos td.nome-contatos {
+        white-space: nowrap; /* Mantém o texto em uma única linha */
+        overflow: hidden; /* Esconde o overflow de texto */
+        text-overflow: ellipsis; /* Adiciona reticências se o texto for muito longo */
+    }
+
+    /* Estilos para as células truncadas */
+    .tabela-contatos td:not(.nome-contatos) {
+        cursor: pointer; /* Muda o cursor para indicar interatividade */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 150px; /* Define uma largura máxima */
+    }
+
+    /* Estilos para expandir a célula ao clicar */
+    .tabela-contatos .expandida td {
+        white-space: normal;
+    }
+
+    /* Estilos para personalizar a barra de rolagem horizontal */
+    .tabela-container::-webkit-scrollbar {
+        height: 12px; /* Altura da barra de rolagem */
+    }
+
+    .tabela-container::-webkit-scrollbar-track {
+        background: #2c2c2c; /* Cor de fundo da trilha da barra de rolagem */
+        border-radius: 10px; /* Bordas arredondadas para a trilha */
+    }
+
+    .tabela-container::-webkit-scrollbar-thumb {
+        background-color: #366092; /* Cor da barra de rolagem, ajuste conforme necessário */
+        border-radius: 10px;
+        border: 3px solid #2c2c2c; /* Cor de borda igual à do track para criar o efeito de "margem" */
+    }
+
+    .tabela-container::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Cor da barra de rolagem ao passar o mouse */
+    }
+
+    .titulo-tabela {
+        text-align: left; /* Alinha o título à esquerda */
+        font-family: 'Helvetica Neue', Arial, sans-serif; /* Fonte elegante e profissional */
+        color: #3d85c6; /* Cor sóbria para um visual mais profissional */
+        margin-bottom: 20px; /* Espaço entre o título e a tabela */
+        font-size: 1.5em; /* Tamanho da fonte adequado */
+        font-weight: 600; /* Semi-negrito para destaque */
+        padding-left: 15px; /* Alinhamento com o início da tabela */
+    }
+
+    
+    .filtros {
+        display: flex; /* Ativa o flexbox */
+        gap: 2px; /* Diminui o espaçamento entre os itens */
+        margin-bottom: 5px; /* Espaço antes da tabela */
+        padding-left: 20px; /* Alinhamento com o início da tabela */
+        align-items: flex-start; /* Alinha os itens à esquerda *//
+    }
+
+    .filtro-contatos {
+        margin-bottom: 5px; /* Espaço antes da tabela */
+        text-align: left; /* Alinhamento do texto */
+        padding-left: 5px; /* Alinhamento com o início da tabela */
+}
+
+    .filtro-contatos select {
+        font-family: 'Arial', sans-serif; /* Fonte para combinar com a tabela */
+        padding: 10px; /* Espaçamento interno para conforto visual */
+        border-radius: 4px; /* Bordas arredondadas */
+        border: 2px solid #ffffff; /* Borda para combinar com a tabela */
+        background-color: #303030; /* Cor de fundo para combinar com a tabela */
+        color: #fcfcfc; /* Cor do texto */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Sombra suave */
+        cursor: pointer; /* Estilo do cursor */
+    }
+
+    .filtro-contatos label {
+        color: #3d85c6; /* Cor da etiqueta para combinar com o título da tabela */
+        margin-right: 10px; /* Espaçamento entre a etiqueta e a lista suspensa */
+        font-weight: 600; /* Peso da fonte para a etiqueta */
+    }
+
+    .tabela-contatos a {
+        color: #fdfdfd; /* Cor branca dos links por padrão */
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .tabela-contatos a:hover {
+        color: #366092; /* Cor de hover para os links */
+        text-decoration: underline;
+    }
+
+    .tabela-contatos td.email {
+        min-width: 280px; /* Ajuste este valor conforme necessário */
+        white-space: normal;
+        word-break: break-word;
+        overflow: visible;
+    }
+    
+    .text-success {
+        color: #28a745; /* Verde, ou escolha a cor que preferir para representar 'verdadeiro' */
+    }
+
+    .text-danger {
+        color: #dc3545; /* Vermelho, ou escolha a cor que preferir para representar 'falso' */
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.linha-contatos').forEach(function(linha) {
+        linha.addEventListener('click', function(event) {
+            // Verifica se o clique foi em uma célula da coluna 'empresa'
+            if (event.target.classList.contains('classe-empresa') || event.target.parentNode.classList.contains('classe-empresa')) {
+                return; // Não faz nada se o clique foi na coluna 'empresa'
+            }
+
+            // Alterna a classe 'expandida'
+            this.classList.toggle('expandida');
+
+            // Alterna entre texto completo e truncado
+            this.querySelectorAll('td').forEach(function(td) {
+                if (td.title) {
+                    let temp = td.innerText;
+                    td.innerText = td.title;
+                    td.title = temp;
+                }
+            });
+        });
+    });
+});
+
+   // Função que aplica todos os filtros
+   function aplicarFiltros() {
+        var nomeCompleto = document.getElementById('nomeCompletoSelect').value;
+        var areaId = document.getElementById('areaSelect').value;
+        var nivelID = document.getElementById('nivelSelect').value;
+        var empresaId = document.getElementById('empresaSelect').value;
+
+        var linhas = document.querySelectorAll('.tabela-contatos tbody tr');
+        linhas.forEach(function(linha) {
+            var celulaNomeCompleto = linha.getAttribute('data-nome-completo');
+            var celulaArea = linha.getAttribute('data-area-id');
+            var celulaNivel = linha.getAttribute('data-nivel-id');
+            var celulaEmpresa = linha.getAttribute('data-empresa-id');
+            
+
+            var filtroNomeCompleto = !nomeCompleto || celulaNomeCompleto === nomeCompleto;
+            var filtroArea = !areaId || celulaArea === areaId;
+            var filtroNivel = !nivelID || celulaNivel === nivelID;
+            var filtroEmpresa = !empresaId || celulaEmpresa === empresaId;
+            console.log("Estágio da Linha: " + celulaNivel + ", Estágio Selecionado: " + nivelID);
+
+
+            linha.style.display = filtroArea && filtroNivel && filtroNomeCompleto && filtroEmpresa ? '' : 'none';
+        });
+    }
+</script>
+
+<div class="py-20 px-4 container-tabela">
+    <!-- Seção para listar propotas -->
+        <!-- Container para o título da tabela -->
+        <div>
+            <h1 class="titulo-tabela">tabela | contatos</h1>
+        </div>
+    
+        <div class="filtros">
+            <!-- Gerando a lista suspensa de nome sobrenomes -->
+            <div class="filtro-contatos">
+                <label for="nomeCompletoSelect">Filtros:</label>
+                <select id="nomeCompletoSelect" onchange="aplicarFiltros()">
+                    <option value="">Todos os Nomes</option>
+                    {% for nome_completo in nomes_contatos %}
+                        <option value="{{ nome_completo }}">{{ nome_completo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+    
+            <!-- Lista Suspensa para Áreas -->
+            <div class="filtro-contatos">
+                <label for="areaSelect"></label>
+                <select id="areaSelect" onchange="aplicarFiltros()">
+                    <option value="">Todas as Áreas</option>
+                    {% for area in areas_unicas %}
+                        <option value="{{ area }}">{{ area }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Lista Suspensa para Níveis Hierárquicos -->
+            <div class="filtro-contatos">
+                <label for="nivelSelect"></label>
+                <select id="nivelSelect" onchange="aplicarFiltros()">
+                    <option value="">Todos os Níveis Hierárquicos</option>
+                    {% for nivel in niveis_unicos %}
+                        <option value="{{ nivel }}">{{ nivel }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+             <!-- Lista Suspensa para Empresas -->
+            <div class="filtro-contatos">
+                <label for="empresaSelect"></label>
+                <select id="empresaSelect" onchange="aplicarFiltros()">
+                    <option value="">Todas as Empresas</option>
+                    {% for empresa_id, empresa_nome in empresas_unicas %}
+                        <option value="{{ empresa_id }}">{{ empresa_nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    
+        <!-- Adicione a tabela de propotas aqui -->
+        <div class="tabela-container">
+            <table class="tabela-contatos">
+                <thead>
+                    <tr>
+                        <th>CC</th>
+                        <th>nome</th>
+                        <th>sobrenome</th>
+                        <th>empresa</th>
+                        <th>nível hierarquico</th>
+                        <th>área</th>
+                        <th>telefone</th>
+                        <th>celular</th>
+                        <th>email</th>
+                        <th>endereço</th>
+                        <th>cidade</th>    
+                        <th>uf</th>         
+                        <th>país</th>         
+                        <!-- Outros cabeçalhos conforme necessário -->
+                    </tr>
+                </thead>        
+                    <tbody>
+                        {% for contato in object_list %}
+                        <tr class="linha-contatos" 
+                            data-nome-completo="{{ contato.nome }} {{ contato.sobrenome }}"
+                            data-area-id="{{ contato.area.nome }}" 
+                            data-nivel-id="{{ contato.nivel_hierarquico.nome }}"
+                            data-empresa-id="{{ contato.empresa.id }}"> 
+                            <td>
+                                {% if contato.CC %}
+                                    <span class="text-success">✔</span> <!-- ícone de 'check' para verdadeiro -->
+                                {% else %}
+                                    <span class="text-danger">✘</span> <!-- ícone de 'times' para falso -->
+                                {% endif %}
+                            </td>
+                            <td> {{ contato.nome }}</td>
+                            <td> {{ contato.sobrenome }}</td>   
+                            <td class="classe-empresa">
+                                <a href="{% url 'empresa:perfilempresa' contato.empresa.id %}">{{ contato.empresa.nome }}</a>
+                            </td>         
+                            <td>{{ contato.nivel_hierarquico }}</td>
+                            <td>{{ contato.area }}</td>
+                            <td>{{ contato.telefone}}</td>
+                            <td>{{ contato.celular}}</td>
+                            <td class="email">{{ contato.email }}</td>
+                            <td>{{ contato.endereco }}</td>
+                            <td>{{ contato.endereco.cidade}}</td>
+                            <td>{{ contato.endereco.cidade.estado.uf }}</td>
+                            <td>{{ contato.endereco.cidade.estado.pais }}</td>
+                            <!-- Outras células conforme necessário -->
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+        </div>
+
+</div>
+
+
+<footer class=" bg-[#366092] px-1 py-2 ">
+    <ul class=" flex justify-between items-center">
+        
+        <li>&copy; 2023</li>
+        <li> Feito com Python (Django)</li>
+        <li>grupo report</li>
+    </ul>
+</footer>
+{% endblock %}

@@ -1,0 +1,150 @@
+
+{% load static %}
+<nav class="w-full flex justify-between items-center py-3 px-4 fixed z-50">
+    <div class="w-2/12">
+        <a href="/">
+            <img class="w-8/12" src="{% static 'images/report_logo_sem_fundo.png' %}">
+        </a> 
+    </div>
+    
+    <div class="w-10/12 flex flex-nowrap justify-end">
+        <!-- barra de pesquisar -->
+        <div class="mr-2">
+            <form>
+                <input type="text" class="py-1 px-2 rounded-md text-black" placeholder="Pesquisar...">
+            </form>
+        </div>
+        <!-- Lista suspensa do módulo de Negócios -->
+        <div class="relative inline-block text-left">
+            <!-- Botão que aciona o dropdown -->
+            <button onclick="toggleDropdown('dropdown_Neg')" id="dropdownNeg" class="mr-2 text-white bg-[#366092] rounded-md px-3 py-1 text-center inline-flex items-center" type="button">
+                Negócios
+                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+    
+            <!-- Menu do dropdown -->
+            <div id="dropdown_Neg" class="hidden absolute mt-2 min-w-max rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                <!-- Conteúdo do dropdown -->
+                <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="dropdownNeg">
+                    <a href="/kanban" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Jornada do Cliente</a>
+                    <a href="/propostas" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Propostas</a>
+                    <a href="/empresas" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Empresas</a>
+                    <a href="/contatos" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Contatos</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista suspensa do módulo Financeiro -->
+        <div class="relative inline-block text-left">
+            <!-- Botão que aciona o dropdown -->
+            <button onclick="toggleDropdown('dropdown_Fin')" id="dropdownFin" class="mr-2 text-white bg-[#366092] rounded-md px-3 py-1 text-center inline-flex items-center" type="button">
+                Financeiro
+                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+    
+            <!-- Menu do dropdown -->
+            <div id="dropdown_Fin" class="hidden absolute mt-2 min-w-max rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                <!-- Conteúdo do dropdown -->
+                <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="dropdownFin">
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Dashboard</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Earnings</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista suspensa do módulo de Projetos -->
+        <div class="relative inline-block text-left">
+            <!-- Botão que aciona o dropdown -->
+            <button onclick="toggleDropdown('dropdown_Proj')" id="dropdownProj" class="mr-2 text-white bg-[#366092] rounded-md px-3 py-1 text-center inline-flex items-center" type="button">
+                Projetos
+                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+    
+            <!-- Menu do dropdown -->
+            <div id="dropdown_Proj" class="hidden absolute mt-2 min-w-max rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                <!-- Conteúdo do dropdown -->
+                <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="dropdownProj">
+                    <a href="/projeto_kanban" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Projetos</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Earnings</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista suspensa do módulo de Pessoas -->
+        <div class="relative inline-block text-left">
+            <!-- Botão que aciona o dropdown -->
+            <button onclick="toggleDropdown('dropdown_Pessoas')" id="dropdownPessoas" class="mr-2 text-white bg-[#366092] rounded-md px-3 py-1 text-center inline-flex items-center" type="button">
+                Pessoas
+                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+    
+            <!-- Menu do dropdown -->
+            <div id="dropdown_Pessoas" class="hidden absolute mt-2 min-w-max rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                <!-- Conteúdo do dropdown -->
+                <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="dropdownPessoas">
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Dashboard</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Earnings</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botão de Login -->
+        <div class="mr-2">
+            <a href="#">
+                <button class="bg-[#366092] text-white py-1 px-3 rounded-md">
+                    Login
+                </button>
+            </a>
+        </div>
+         <!-- Botão de Editar Perfil -->       
+        <div class="mr-2">
+            <a href="#">
+                <button class="bg-[#366092] text-white py-1 px-3 rounded-md">
+                    Editar Perfil
+                </button>
+            </a>
+        </div>
+
+    
+    </div>
+</nav>
+
+<script>
+    function toggleDropdown(dropdownId) {
+        // Lista de todos os ids dos dropdowns
+        var dropdowns = ['dropdown_Neg', 'dropdown_Fin', 'dropdown_Proj', 'dropdown_Pessoas'];
+    
+        // Mostra ou esconde o dropdown que foi clicado
+        var targetDropdown = document.getElementById(dropdownId);
+        targetDropdown.classList.toggle("hidden");
+    }
+    
+    // Fechar os dropdowns quando clicar fora deles
+    document.addEventListener('click', function(event) {
+        var dropdowns = ['dropdown_Neg', 'dropdown_Fin', 'dropdown_Proj', 'dropdown_Pessoas'];
+        
+        // Verifica se o clique foi dentro de algum dropdown ou em seus respectivos botões
+        var isClickInsideDropdown = dropdowns.some(function(id) {
+            var dropdown = document.getElementById(id);
+            var buttonId = id.replace('dropdown_', 'dropdown');
+            var button = document.getElementById(buttonId);
+            return dropdown.contains(event.target) || button.contains(event.target);
+        });
+    
+        // Se o clique foi fora, fecha todos os dropdowns
+        if (!isClickInsideDropdown) {
+            dropdowns.forEach(function(id) {
+                var dropdown = document.getElementById(id);
+                if (!dropdown.classList.contains("hidden")) {
+                    dropdown.classList.add("hidden");
+                }
+            });
+        }
+    });
+    </script>

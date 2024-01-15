@@ -1,0 +1,367 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}
+HomeEmpresas Grupo Report
+{% endblock %}
+
+{% block content %}
+<style>
+
+    .container-tabela {
+        background-color: #1b1b1b;
+    }
+    .tabela-container {
+        margin-top: 50px; /* Ajusta apenas a posição da tabela */
+    }
+
+    /* Estilos para a tabela de propotas, adaptados do seu código anterior */
+    .tabela-propostas {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 25px 0;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        font-family: 'Arial', sans-serif;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid #ffffff; /* Contorno branco */
+        margin-left: 10px; /* Reduz a margem esquerda */
+        margin-right: auto; /* Centraliza a tabela horizontalmente */
+        margin-top: 20px; /* Espaçamento superior (entre a descrição e a tabela) */
+        width: 95%; /* Ajuste a largura conforme necessário */
+    }
+
+    .tabela-propostas thead {
+        box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+    }
+
+    .tabela-propostas thead tr {
+        background-color: #366092;
+        color: #ffffff;
+        text-align: left;
+    }
+
+    .tabela-propostas th, .tabela-propostas td {
+        padding: 12px 15px;
+        text-align: left; /* Alinha o texto à esquerda */
+    }
+
+    .tabela-propostas tbody tr {
+        background-color: #303030; /* Fundo preto para as linhas da tabela */
+        color: #fcfcfc; /* Texto branco para as linhas da tabela */
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .tabela-propostas tbody tr:hover {
+        background-color: #3d3d3d; /* Fundo mais claro ao passar o mouse */
+        color: #ffffff;
+    }
+
+    /* Pode remover ou ajustar se a interação não for necessária para propotas */
+    .descricao-curta {
+        cursor: pointer;
+    }
+
+    .tabela-container {
+        overflow-x: auto; /* Adiciona rolagem horizontal se necessário */
+        margin-top: 5px; /* Espaçamento superior */
+        margin-left: 10px; /* Reduz a margem esquerda */
+        margin-right: 10px; /* Reduz a margem direita */
+        width: 97%; /* Ajuste a largura conforme necessário */
+        margin-top: 0; /* Reduz a margem superior para aproximar a tabela do título */
+
+    }
+
+    .linha-propostas {
+       cursor: pointer; /* Muda o cursor para indicar interatividade */
+        transition: background-color 0.3s ease; /* Transição suave para o fundo */
+    }   
+
+    .linha-propostas.expandida td {
+        white-space: normal; /* Permite que o texto flua normalmente */
+    }
+
+    .tabela-propostas th, .tabela-propostas td.nome-propostas {
+        white-space: nowrap; /* Mantém o texto em uma única linha */
+        overflow: hidden; /* Esconde o overflow de texto */
+        text-overflow: ellipsis; /* Adiciona reticências se o texto for muito longo */
+    }
+
+    /* Estilos para as células truncadas */
+    .tabela-propostas td:not(.nome-propostas) {
+        cursor: pointer; /* Muda o cursor para indicar interatividade */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 150px; /* Define uma largura máxima */
+    }
+
+    /* Estilos para expandir a célula ao clicar */
+    .tabela-propostas .expandida td {
+        white-space: normal;
+    }
+
+    /* Estilos para personalizar a barra de rolagem horizontal */
+    .tabela-container::-webkit-scrollbar {
+        height: 12px; /* Altura da barra de rolagem */
+    }
+
+    .tabela-container::-webkit-scrollbar-track {
+        background: #2c2c2c;  /* Cor de fundo da trilha da barra de rolagem */
+        border-radius: 10px; /* Bordas arredondadas para a trilha */
+    }
+
+    .tabela-container::-webkit-scrollbar-thumb {
+        background-color: #366092; /* Cor da barra de rolagem, ajuste conforme necessário */
+        border-radius: 10px;
+        border: 3px solid #2c2c2c; /* Cor de borda igual à do track para criar o efeito de "margem" */
+    }
+
+    .tabela-container::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Cor da barra de rolagem ao passar o mouse */
+    }
+
+    .titulo-tabela {
+        text-align: left; /* Alinha o título à esquerda */
+        font-family: 'Helvetica Neue', Arial, sans-serif; /* Fonte elegante e profissional */
+        color: #3d85c6; /* Cor sóbria para um visual mais profissional */
+        margin-bottom: 20px; /* Espaço entre o título e a tabela */
+        font-size: 1.5em; /* Tamanho da fonte adequado */
+        font-weight: 600; /* Semi-negrito para destaque */
+        padding-left: 15px; /* Alinhamento com o início da tabela */
+    }
+
+    
+    .filtros {
+        display: flex; /* Ativa o flexbox */
+        gap: 2px; /* Diminui o espaçamento entre os itens */
+        margin-bottom: 5px; /* Espaço antes da tabela */
+        padding-left: 20px; /* Alinhamento com o início da tabela */
+        align-items: flex-start; /* Alinha os itens à esquerda *//
+    }
+
+    .filtro-propostas {
+        margin-bottom: 5px; /* Espaço antes da tabela */
+        text-align: left; /* Alinhamento do texto */
+        padding-left: 5px; /* Alinhamento com o início da tabela */
+}
+
+    .filtro-propostas select {
+        font-family: 'Arial', sans-serif; /* Fonte para combinar com a tabela */
+        padding: 10px; /* Espaçamento interno para conforto visual */
+        border-radius: 4px; /* Bordas arredondadas */
+        border: 2px solid #ffffff; /* Borda para combinar com a tabela */
+        background-color: #303030; /* Cor de fundo para combinar com a tabela */
+        color: #fcfcfc; /* Cor do texto */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Sombra suave */
+        cursor: pointer; /* Estilo do cursor */
+    }
+
+    .filtro-propostas label {
+        color: #3d85c6; /* Cor da etiqueta para combinar com o título da tabela */
+        margin-right: 10px; /* Espaçamento entre a etiqueta e a lista suspensa */
+        font-weight: 600; /* Peso da fonte para a etiqueta */
+    }
+
+    .tabela-propostas a {
+        color: #fdfdfd; /* Cor branca dos links por padrão */
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .tabela-propostas a:hover {
+        color: #366092; /* Cor de hover para os links */
+        text-decoration: underline;
+    }
+     
+    /* Formatação da coluna nome */
+    .tabela-propostas td.nome {
+        min-width: 400px; /* Ajuste este valor conforme necessário */
+        white-space: normal;
+        word-break: break-word;
+        overflow: visible;
+    }
+
+    /* Formatação da coluna linha de estágio */
+    .tabela-propostas td.estagio {
+        min-width: 200px; /* Ajuste este valor conforme necessário */
+        white-space: normal;
+        word-break: break-word;
+        overflow: visible;
+    }
+
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.linha-propostas').forEach(function(linha) {
+            linha.addEventListener('click', function(event) {
+                // Verifica se o clique foi em uma célula da coluna 'empresa'
+                if (event.target.classList.contains('classe-empresa') || event.target.parentNode.classList.contains('classe-empresa')) {
+                    return; // Não faz nada se o clique foi na coluna 'empresa'
+                }
+
+                // Alterna a classe 'expandida'
+                this.classList.toggle('expandida');
+
+                // Alterna entre texto completo e truncado
+                this.querySelectorAll('td').forEach(function(td) {
+                    if (td.title) {
+                        let temp = td.innerText;
+                        td.innerText = td.title;
+                        td.title = temp;
+                    }
+                });
+            });
+        });
+    });
+
+   // Função que aplica todos os filtros
+    function aplicarFiltros() {
+        var empresaId = document.getElementById('empresaSelect').value;
+        var servicoId = document.getElementById('servicoSelect').value;
+        var estagioID = document.getElementById('estagioSelect').value;
+        var responsavelID = document.getElementById('responsavelSelect').value;
+
+
+        var linhas = document.querySelectorAll('.tabela-propostas tbody tr');
+        linhas.forEach(function(linha) {
+            var celulaEmpresa = linha.getAttribute('data-empresa-id');
+            var celulaServicos = linha.getAttribute('data-servico-ids');
+            var celulaEstagio = linha.getAttribute('data-estagio-id');
+            var celulaResponsavel = linha.getAttribute('data-responsavel-id');
+
+            var filtroEmpresa = !empresaId || celulaEmpresa === empresaId;
+            var filtroServico = !servicoId || celulaServicos.includes(servicoId);
+            var filtroEstagio = !estagioID || celulaEstagio === estagioID;
+            var filtroResponsavel = !responsavelID || celulaResponsavel === responsavelID;
+
+            linha.style.display = filtroEmpresa && filtroServico && filtroEstagio && filtroResponsavel ? '' : 'none';
+        });
+    }
+
+
+</script>
+
+<div class="py-20 px-4 container-tabela">
+    <!-- Seção para listar propotas -->
+        <!-- Container para o título da tabela -->
+        <div>
+            <h1 class="titulo-tabela">tabela | propostas</h1>
+        </div>
+    
+        <div class="filtros">
+           <!-- Lista Suspensa para Empresas -->
+            <div class="filtro-propostas">
+                <label for="empresaSelect">Filtros:</label>
+                <select id="empresaSelect" onchange="aplicarFiltros()">
+                    <option value="">Todas as Empresas</option>
+                    {% for empresa_id, empresa_nome in empresas_unicas %}
+                        <option value="{{ empresa_id }}">{{ empresa_nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Lista Suspensa para Serviços -->
+            <div class="filtro-propostas">
+                <label for="servicoSelect"></label>
+                <select id="servicoSelect" onchange="aplicarFiltros()">
+                    <option value="">Todos os Serviços</option>
+                    {% for servico_id, servico_nome in servicos_unicos %}
+                        <option value="{{ servico_id }}">{{ servico_nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Lista Suspensa para estagio -->
+            <div class="filtro-propostas">
+                <label for="estagioSelect"></label>
+                <select id="estagioSelect" onchange="aplicarFiltros()">
+                    <option value="">Todos os Estágio</option>
+                    {% for estagio in estagios %}
+                        <option value="{{ estagio.id  }}">{{ estagio.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Lista Suspensa para responsáveis -->
+            <div class="filtro-propostas">
+                <label for="responsavelSelect"></label>
+                <select id="responsavelSelect" onchange="aplicarFiltros()">
+                    <option value="">Todos os Responsáveis</option>
+                    {% for responsavel_id, responsavel_nome in responsaveis_unicos %}
+                        <option value="{{ responsavel_id }}">{{ responsavel_nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    
+        <!-- Adicione a tabela de propotas aqui -->
+        <div class="tabela-container">
+            <table class="tabela-propostas">
+                <thead>
+                    <tr>
+                        <th>empresa</th>
+                        <th>nome da proposta</th>
+                        <th>serviços</th>
+                        <th>linha de serviço</th>
+                        <th>responsáveis</th>
+                        <th>estágio</th>
+                        <th>data de deadline</th>
+                        <th>data de pedido</th>
+                        <th>data de envio</th>
+                        <th>data de aprovação</th>                  
+                        <th>valor</th>
+
+                        <!-- Outros cabeçalhos conforme necessário -->
+                    </tr>
+                </thead>        
+                    <tbody>
+                        {% for proposta in object_list %}
+                        <tr class="linha-propostas" 
+                            data-empresa-id="{{ proposta.empresa.id }}" 
+                            data-servico-ids="{% for comb_servico in proposta.modulos.all %}{{ comb_servico.modulo.servico.id }},{% endfor %}"
+                            data-estagio-id="{{ proposta.estagio.id }}"
+                            data-responsavel-id="{{ proposta.responsavel.id }}">
+                            <td class="classe-empresa">
+                                <a href="{% url 'empresa:perfilempresa' proposta.empresa.id %}">{{  proposta.empresa.nome  }}</a>
+                            </td>
+                            <td class="nome" > {{ proposta.nome }}</td>
+                            <td>
+                                {% for comb_servico in proposta.modulos.all %}
+                                    {{ comb_servico.modulo.servico.nome }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for comb_servico in proposta.modulos.all %}
+                                    {{ comb_servico.modulo.servico.linha_de_servico.nome }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>{{ proposta.responsavel }}</td>
+                            <td class="estagio">{{ proposta.estagio.nome }}</td>
+                            <td>{{ proposta.deadline|date:"d/m/Y" }}</td>
+                            <td>{{ proposta.data_de_pedido|date:"d/m/Y" }}</td>
+                            <td>{{ proposta.data_de_envio|date:"d/m/Y" }}</td>
+                            <td>{{ proposta.data_de_aprovacao|date:"d/m/Y" }}</td>
+                            <td>R$ {{ proposta.valor|floatformat:2 }}</td>
+                            <!-- Outras células conforme necessário -->
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+        </div>
+
+</div>
+
+
+<footer class=" bg-[#366092] px-1 py-2 ">
+    <ul class=" flex justify-between items-center">
+        
+        <li>&copy; 2023</li>
+        <li> Feito com Python (Django)</li>
+        <li>grupo report</li>
+    </ul>
+</footer>
+{% endblock %}
