@@ -13,12 +13,15 @@ COPY requirements.txt /app/
 
 # Install the dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install Pillow
 
 # Copy the application code to the working directory
 COPY . .
 
 # Expose port 8000 for the Django application
 EXPOSE 8000
+
+
 
 # Command to run the application
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
